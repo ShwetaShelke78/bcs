@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: MIT 
+pragma solidity ^0.8.0; 
+ 
+contract ProofOfStake { 
+    uint256 public targetDifficulty = 2**240;  // Target difficulty for the proof 
+    uint256 public nonce = 0;                  // Current nonce for PoW 
+ 
+    event ProofOfStakeFound(uint256 nonce, address miner); 
+ 
+    function mine(uint256 _nonce) public { 
+        uint256 hash = uint256(keccak256(abi.encodePacked(_nonce, block.timestamp))); 
+        require(hash < targetDifficulty, "Proof of Stake not met."); 
+         
+        nonce = _nonce; 
+        emit ProofOfStakeFound(_nonce, msg.sender); 
+    } 
+}

@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract MerkleTree {
+    bytes32[] public leaves;
+    bytes32 public root;
+
+    function addLeaf(bytes32 leaf) public {
+        leaves.push(leaf);
+    }
+
+    function buildTree() public {
+        require(leaves.length > 0, "No leaves to build tree");
+
+        bytes32[] memory nodes = leaves;
+        uint n = nodes.length;
+
+        while (n > 1)

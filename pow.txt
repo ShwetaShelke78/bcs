@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimplePoW {
+    bytes32 public currentChallenge; // The current challenge to solve
+    uint public difficulty = 3; // Number of leading zeroes required
+    uint public timeOfLastProof;
+
+    constructor() {
+        timeOfLastProof = block.timestamp;
+        currentChallenge = blockhash(block.number - 1);
+    }
+
+    function proofOfWork(uint nonce) public {
+        bytes32 hashResult = keccak256(abi.encodePacked(currentChallenge, msg.sender, nonce));
+        
+        // Check if the hash has required number of leading zeros
+        require(uint256(hashResult) < type(uint256).max / (10 ** difficulty), "Invalid PoW");
+
+        // Reward logic (e.g., mint token or increase score) could go here
+
+        // Update state
+        timeOfLastProof = block.timestamp;
+        currentChallenge = keccak256(abi.encodePacked(currentChallenge, nonce, blockhash(block.number - 1)));
+    }
+}
+ 

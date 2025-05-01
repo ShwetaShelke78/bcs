@@ -1,0 +1,58 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract PBFT {
+    uint256 public proposal;
+    address public leader;
+    mapping(address => bool) public voted;
+    uint256 public votes;
+    uint256 public quorum = 3;
+    address[5] public nodes;  // Array of addresses for 5 nodes
+
+    event ProposalMade(uint256 proposal);
+    event Voted(address indexed node, uint256 proposal);
+    event ConsensusAchieved(uint256 proposal);
+
+    constructor(address _leader, address[5] memory _nodes) {
+        leader = _leader;
+        nodes = _nodes;
+    }
+
+    modifier onlyLeader() {
+        require(msg.sender == leader, "Only leader can propose");
+        _;
+    }
+
+    function propose(uint256 _proposal) public onlyLeader {
+        proposal = _proposal;
+        resetVotes();
+        emit ProposalMade(_proposal);
+    }
+
+    function vote() public {
+        require(!voted[msg.sender], "Already voted");
+        require(isNode(msg.sender), "Not a valid node");
+        voted[msg.sender] = true;
+        votes++;
+        emit Voted(msg.sender, proposal);
+        if (votes >= quorum) {
+            emit ConsensusAchieved(proposal);
+        }
+    }
+
+    function resetVotes() private {
+        votes = 0;
+        for (uint i = 0; i < nodes.length; i++) {
+            voted[nodes[i]] = false;
+        }
+    }
+
+    function isNode(address _address) private view returns (bool) {
+        for (uint i = 0; i < nodes.length; i++) {
+            if (nodes[i] == _address) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
